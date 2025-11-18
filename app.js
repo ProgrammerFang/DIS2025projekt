@@ -50,7 +50,7 @@ app.use(session({
 }));
 
 // Static file serving
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname,'disprojekt2025', 'public')));
 
 // Brug rate limiting på chat API
 app.use('/api/chat', chatLimiter);
@@ -60,14 +60,14 @@ app.get('/forside.html', (req, res) => {
   if (!req.session.user) {
     return res.redirect('/login.html');
   }
-  res.sendFile(path.join(__dirname, 'protected', 'forside.html'));
+  res.sendFile(path.join(__dirname, 'disprojekt2025','protected', 'forside.html'));
 });
 
 app.get('/forside', (req, res) => {
   if (!req.session.user) {
     return res.redirect('/login.html');
   }
-  res.sendFile(path.join(__dirname, 'protected', 'forside.html'));
+  res.sendFile(path.join(__dirname, 'disprojekt2025','protected', 'forside.html'));
 });
 
 // 🔴 ROUTE FOR RODEN (/)
