@@ -23,14 +23,20 @@ var chatRouter = require('./disprojekt2025/routes/deepseek'); // Skift til deeps
 require('dotenv').config();
 var app = express();
 
+// Trust proxy for HTTPS
+app.set('trust proxy', 1);
+
 // View engine setup
-app.set('views', path.join(__dirname, 'views'));
+app.set('views', path.join(__dirname, 'disprojekt2025/views'));
 app.set('view engine', 'html');
 
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
+
+// Static files
+app.use(express.static(path.join(__dirname, 'disprojekt2025/public')));
 
 // Session middleware
 app.use(session({
