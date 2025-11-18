@@ -49,7 +49,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 // Brug rate limiting på chat API
 app.use('/api/chat', chatLimiter);
 
-// 🔴 BESKYTTEDE ROUTES su
+// 🔴 BESKYTTEDE ROUTES
 app.get('/forside.html', (req, res) => {
   if (!req.session.user) {
     return res.redirect('/login.html');
