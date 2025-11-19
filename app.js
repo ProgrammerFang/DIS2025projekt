@@ -4,6 +4,7 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var rateLimit = require('express-rate-limit');
+var helmet = require('helmet');
 
 // Mere rimelig rate limiting
 const chatLimiter = rateLimit({
@@ -29,6 +30,9 @@ app.set('trust proxy', 1);
 // View engine setup
 app.set('views', path.join(__dirname, 'disprojekt2025/views'));
 app.set('view engine', 'html');
+
+// Security headers
+app.use(helmet());
 
 app.use(logger('dev'));
 app.use(express.json());
