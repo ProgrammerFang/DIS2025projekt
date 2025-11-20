@@ -31,7 +31,7 @@ const displayCurrentUser = async () => {
     const response = await fetch('/auth/me');
     if (response.ok) {
       const data = await response.json();
-      el.textContent = data.username || 'Bruger';
+      el.textContent = (data.user && data.user.username) || 'Bruger';
     } else {
       el.textContent = 'Ikke logget ind';
     }

@@ -90,13 +90,25 @@ app.get('/', (req, res) => {
   if (req.session.user) {
     return res.redirect('/forside');
   }
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  res.sendFile(path.join(__dirname, 'disprojekt2025', 'public', 'index.html'));
 });
 
 // Brug routers
 app.use('/auth', authRouter);
 app.use('/api', chatRouter);
 app.use('/users', usersRouter);
+
+// Simple session health check for debugging
+app.get('/session-health', (req, res) => {
+  req.session.views = (req.session.views || 0) + 1;
+  res.json({
+    ok: true,
+    sid: req.sessionID,
+    user: req.session.user || null,
+    views: req.session.views,
+    cookies: req.headers['cookie'] || null
+  });
+});
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

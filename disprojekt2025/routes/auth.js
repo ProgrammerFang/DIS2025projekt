@@ -57,8 +57,9 @@ router.post('/logout', (req, res) => {
       console.error('Logout fejl:', err);
       return res.status(500).json({ success: false, message: 'Logout fejlede' });
     }
-    
+    // Clear possible session cookies (default and custom name)
     res.clearCookie('connect.sid');
+    res.clearCookie('sid');
     res.json({ success: true, message: 'Logout succesfuld' });
   });
 });
