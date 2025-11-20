@@ -4,6 +4,8 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var rateLimit = require('express-rate-limit');
+var { RedisStore } = require('connect-redis');
+var { createClient } = require('redis');
 
 // Mere rimelig rate limiting
 const chatLimiter = rateLimit({
@@ -26,6 +28,12 @@ var app = express();
 // Trust proxy for HTTPS
 app.set('trust proxy', 1);
 
+// Minimal Redis session store setup (PM2/load balancer friendly)
+const redisUrl = process.env.REDIS_URL || 'redis://127.0.0.1:6379';
+const redisClient = createClient({ url: redisUrl });
+redisClient.on('error', (err) => console.error('Redis error:', err));
+redisClient.connect().catch((err) => console.error('Redis connect failed:', err));
+
 // View engine setup
 app.set('views', path.join(__dirname, 'disprojekt2025/views'));
 app.set('view engine', 'html');
@@ -40,13 +48,18 @@ app.use(cookieParser());
 // Static files
 app.use(express.static(path.join(__dirname, 'disprojekt2025/public')));
 
-// Session middleware
+// Session middleware (Redis-backed)
 app.use(session({
+  store: new RedisStore({ client: redisClient, prefix: 'sess:' }),
+  name: 'sid',
   secret: process.env.SESSION_SECRET || 'din-hemmelige-nøgle-her',
   resave: false,
   saveUninitialized: false,
-  cookie: { 
-    secure: true,
+  proxy: true,
+  cookie: {
+    httpOnly: true,
+    sameSite: 'lax',
+    secure: 'auto',
     maxAge: 30 * 60 * 1000 // 30 minutter
   }
 }));
