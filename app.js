@@ -29,16 +29,14 @@ var app = express();
 app.set('trust proxy', 1);
 
 // Minimal Redis session store setup (PM2/load balancer friendly)
-const redisUrl = process.env.REDIS_URL || 'redis://127.0.0.1:6379';
-const redisClient = createClient({ url: redisUrl });
-redisClient.on('error', (err) => console.error('Redis error:', err));
-redisClient.connect().catch((err) => console.error('Redis connect failed:', err));
+const redisUrl = process.env.REDIS_URL || 'redis://127.0.0.1:6379'; // Redis URL fra miljøvariabel eller standard
+const redisClient = createClient({ url: redisUrl }); // Opret Redis klient
+redisClient.on('error', (err) => console.error('Redis error:', err)); // Log Redis fejl
+redisClient.connect().catch((err) => console.error('Redis connect failed:', err)); // Forbind til Redis
 
 // View engine setup
 app.set('views', path.join(__dirname, 'disprojekt2025/views'));
 app.set('view engine', 'html');
-
-
 
 app.use(logger('dev'));
 app.use(express.json());
