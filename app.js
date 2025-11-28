@@ -6,6 +6,13 @@ var logger = require('morgan');
 var rateLimit = require('express-rate-limit');
 var { RedisStore } = require('connect-redis');
 var { createClient } = require('redis');
+const cors = require('cors');
+
+// Tilføj denne linje efter const app = express();
+app.use(cors({
+  origin: 'https://projectdiscbs2025.studio',
+  credentials: true
+}));
 
 // Mere rimelig rate limiting
 const chatLimiter = rateLimit({
