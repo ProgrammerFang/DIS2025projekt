@@ -7,6 +7,8 @@ var rateLimit = require('express-rate-limit');
 var { RedisStore } = require('connect-redis');
 var { createClient } = require('redis');
 const cors = require('cors');
+require('dotenv').config();
+var app = express();
 
 
 
@@ -25,8 +27,7 @@ var usersRouter = require('./disprojekt2025/routes/users');
 var session = require('express-session');
 var authRouter = require('./disprojekt2025/routes/auth');
 var chatRouter = require('./disprojekt2025/routes/deepseek'); // Skift til deepseek
-require('dotenv').config();
-var app = express();
+
 
 // Trust proxy for HTTPS
 app.set('trust proxy', 1);
@@ -65,8 +66,8 @@ app.use(session({
   proxy: true,
   cookie: {
     httpOnly: true,
-    sameSite: 'lax',
-    secure: 'auto',
+    sameSite: 'none',
+    secure: 'true',
     maxAge: 30 * 60 * 1000 // 30 minutter
   }
 }));
