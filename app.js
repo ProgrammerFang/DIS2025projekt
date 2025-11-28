@@ -12,19 +12,28 @@ var app = express();
 
 const sqlite3 = require('sqlite3').verbose();
 const dbPath = path.join(__dirname, 'disprojekt2025', 'db', 'mindb.sqlite');
-const db = new sqlite3.Database(dbPath);
 
-// Gør database tilgængelig for alle routes
-app.set('db', db);
-
-// Test database connection
-db.get("SELECT name FROM sqlite_master WHERE type='table'", (err, row) => {
-  if (err) {
-    console.error('❌ Database error:', err);
-  } else {
-    console.log('✅ Database connected, tables:', row);
-  }
-});
+// 🟢 Database connection per process (cluster-safe)
+let db;
+try {
+  db = new sqlite3.Database(dbPath);
+  console.log(`✅ [PID:${process.pid}] Database connected`);
+  
+  // Test connection
+  db.get("SELECT name FROM sqlite_master WHERE type='table'", (err, row) => {
+    if (err) {
+      console.error(`❌ [PID:${process.pid}] Database error:`, err);
+    } else {
+      console.log(`✅ [PID:${process.pid}] Database tables:`, row);
+    }
+  });
+  
+  // Gør database tilgængelig for routes
+  app.set('db', db);
+  
+} catch (error) {
+  console.error(`❌ [PID:${process.pid}] Database connection failed:`, error);
+}
 
 
 // Mere rimelig rate limiting
