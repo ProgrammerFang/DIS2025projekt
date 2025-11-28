@@ -8,7 +8,7 @@ const dbPath = path.join(__dirname, '..', 'db', 'mindb.sqlite');
 const db = new sqlite3.Database(dbPath);
 
 // Login route
-outer.post('/login', (req, res, next) => {
+router.post('/login', (req, res, next) => {
   const { username, password } = req.body;
   const db = req.app.get('db');  // 🟢 Brug den delte database connection
 
