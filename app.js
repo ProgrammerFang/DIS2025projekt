@@ -8,11 +8,7 @@ var { RedisStore } = require('connect-redis');
 var { createClient } = require('redis');
 const cors = require('cors');
 
-// Tilføj denne linje efter const app = express();
-app.use(cors({
-  origin: 'https://projectdiscbs2025.studio',
-  credentials: true
-}));
+
 
 // Mere rimelig rate limiting
 const chatLimiter = rateLimit({
@@ -34,6 +30,12 @@ var app = express();
 
 // Trust proxy for HTTPS
 app.set('trust proxy', 1);
+
+// Tilføj denne linje efter const app = express();
+app.use(cors({
+  origin: 'https://projectdiscbs2025.studio',
+  credentials: true
+}));
 
 // Minimal Redis session store setup (PM2/load balancer friendly)
 const redisUrl = process.env.REDIS_URL || 'redis://127.0.0.1:6379'; // Redis URL fra miljøvariabel eller standard
