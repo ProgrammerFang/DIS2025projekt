@@ -1,29 +1,31 @@
-// Vis brugernavn på forsiden KUN hvis element findes
 const displayCurrentUser = async () => {
   const el = document.getElementById('brugernavnDisplay');
+  
+  // 🟢 STOP funktionen hvis element ikke findes
   if (!el) {
-    // 🟢 Normalt - element findes kun på forside.html, ikke på login.html
-    return;
+    console.log('Element "brugernavnDisplay" ikke fundet - sandsynligvis ikke på forside');
+    return;  // Vigtigt: returner tidligt!
   }
   
   try {
+    // 🟢 Tilføj credentials for session
     const response = await fetch('/auth/me', {
       credentials: 'include'
     });
     
     if (response.ok) {
       const data = await response.json();
-      if (data.success && data.user) {
-        el.textContent = data.user.username;
-      } else {
-        el.textContent = 'Ikke logget ind';
-      }
+      // 🟢 Korrekt property sti - data.user.username ikke data.username
+      el.textContent = (data.user && data.user.username) || 'Bruger';
     } else {
       el.textContent = 'Ikke logget ind';
     }
   } catch (error) {
     console.error('Error fetching current user:', error);
-    if (el) el.textContent = 'Fejl';
+    // 🟢 Tjek at el stadig eksisterer før vi sætter textContent
+    if (el) {
+      el.textContent = 'Fejl';
+    }
   }
 };
 
