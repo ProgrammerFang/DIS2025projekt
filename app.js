@@ -96,7 +96,6 @@ app.use('/auth', authRouter);
 app.use('/api', chatRouter);
 app.use('/users', usersRouter);
 
-
 // Simple session health check for debugging
 app.get('/session-health', (req, res) => {
   req.session.views = (req.session.views || 0) + 1;
