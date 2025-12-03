@@ -6,35 +6,6 @@ var logger = require('morgan');
 var rateLimit = require('express-rate-limit');
 var { RedisStore } = require('connect-redis');
 var { createClient } = require('redis');
-const cors = require('cors');
-require('dotenv').config();
-var app = express();
-
-const sqlite3 = require('sqlite3').verbose();
-const dbPath = path.join(__dirname, 'disprojekt2025', 'db', 'mindb.sqlite');
-
-// 🟢 Database connection per process (cluster-safe)
-let db;
-try {
-  db = new sqlite3.Database(dbPath);
-  console.log(`✅ [PID:${process.pid}] Database connected`);
-  
-  // Test connection
-  db.get("SELECT name FROM sqlite_master WHERE type='table'", (err, row) => {
-    if (err) {
-      console.error(`❌ [PID:${process.pid}] Database error:`, err);
-    } else {
-      console.log(`✅ [PID:${process.pid}] Database tables:`, row);
-    }
-  });
-  
-  // Gør database tilgængelig for routes
-  app.set('db', db);
-  
-} catch (error) {
-  console.error(`❌ [PID:${process.pid}] Database connection failed:`, error);
-}
-
 
 // Mere rimelig rate limiting
 const chatLimiter = rateLimit({
@@ -51,17 +22,11 @@ var usersRouter = require('./disprojekt2025/routes/users');
 var session = require('express-session');
 var authRouter = require('./disprojekt2025/routes/auth');
 var chatRouter = require('./disprojekt2025/routes/deepseek'); // Skift til deepseek
-
-
+require('dotenv').config();
+var app = express();
 
 // Trust proxy for HTTPS
 app.set('trust proxy', 1);
-
-// Tilføj denne linje efter const app = express();
-app.use(cors({
-  origin: 'https://projectdiscbs2025.studio',
-  credentials: true
-}));
 
 // Minimal Redis session store setup (PM2/load balancer friendly)
 const redisUrl = process.env.REDIS_URL || 'redis://127.0.0.1:6379'; // Redis URL fra miljøvariabel eller standard
@@ -91,8 +56,8 @@ app.use(session({
   proxy: true,
   cookie: {
     httpOnly: true,
-    sameSite: 'none',
-    secure: true,
+    sameSite: 'lax',
+    secure: 'auto',
     maxAge: 30 * 60 * 1000 // 30 minutter
   }
 }));
