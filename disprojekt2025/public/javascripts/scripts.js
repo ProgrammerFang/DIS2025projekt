@@ -1,6 +1,6 @@
 const getUsers = async () => {
   try {
-    const response = await fetch("/users");
+    const response = await fetch("/users",{ credentials: 'include' });
     const data = await response.json();
     console.log(response);
     console.log(data);
@@ -12,7 +12,7 @@ const getUsers = async () => {
 
 const getUser = async (username) => {
   try {
-    const response = await fetch(`/users/${username}`);
+    const response = await fetch(`/users/${username}`,{ credentials: 'include' });
     const data = await response.json();
     console.log(response);
     console.log(data);
@@ -51,7 +51,7 @@ const createUser = () => {
       const password = document.getElementById("adgangskode").value;
       const email = document.getElementById("email").value;
 
-      fetch("/users/create", {
+      fetch("/users/create", { credentials: 'include' },{
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password, email }),
@@ -76,7 +76,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 const setCookie = async () => {
   try {
-    const response = await fetch("/cookie/set");
+    const response = await fetch("/cookie/set",{ credentials: 'include' });
     const data = await response.json();
     console.log(response);
     console.log(data);
@@ -88,7 +88,7 @@ const setCookie = async () => {
 
 const getCookie = async () => {
   try {
-    const response = await fetch("/cookie/get");
+    const response = await fetch("/cookie/get",{ credentials: 'include' });
     const data = await response.json();
     console.log(response);
     console.log(data);
@@ -139,7 +139,7 @@ const setupLoginForm = () => {
 // Logout funktion
 const logout = async () => {
   try {
-    const response = await fetch('/auth/logout', {
+    const response = await fetch('/auth/logout',{ credentials: 'include' }, {
       method: 'POST'
     });
     
