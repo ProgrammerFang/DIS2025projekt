@@ -7,49 +7,49 @@ var rateLimit = require('express-rate-limit');
 var { RedisStore } = require('connect-redis');
 var { createClient } = require('redis');
 
-// Mere rimelig rate limiting
+require('dotenv').config();
+
+var usersRouter = require('./disprojekt2025/routes/users');
+var authRouter = require('./disprojekt2025/routes/auth');
+var chatRouter = require('./disprojekt2025/routes/deepseek');
+
+var session = require('express-session');
+
+var app = express();
+
+// Trust proxy for HTTPS (kun hvis du kører bag reverse proxy)
+app.set('trust proxy', 1);
+
+// Redis session setup
+const redisUrl = process.env.REDIS_URL || 'redis://127.0.0.1:6379';
+const redisClient = createClient({ url: redisUrl });
+
+redisClient.on('error', (err) => console.error('Redis error:', err));
+redisClient.connect().catch((err) => console.error('Redis connect failed:', err));
+
+// Rate limiting på chat API
 const chatLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutter
-  max: 100, // Øg til 100 forespørgsler
-  message: {
-    error: 'For mange forespørgsler. Vent venligst 15 minutter.'
-  },
+  max: 100,
+  message: { error: 'For mange forespørgsler. Vent venligst 15 minutter.' },
   standardHeaders: true,
   legacyHeaders: false
 });
-
-var usersRouter = require('./disprojekt2025/routes/users');
-var session = require('express-session');
-var authRouter = require('./disprojekt2025/routes/auth');
-var chatRouter = require('./disprojekt2025/routes/deepseek'); // Skift til deepseek
-require('dotenv').config();
-var app = express();
-
-// Trust proxy for HTTPS
-app.set('trust proxy', 1);
-
-// Minimal Redis session store setup (PM2/load balancer friendly)
-const redisUrl = process.env.REDIS_URL || 'redis://127.0.0.1:6379'; // Redis URL fra miljøvariabel eller standard
-const redisClient = createClient({ url: redisUrl }); // Opret Redis klient
-redisClient.on('error', (err) => console.error('Redis error:', err)); // Log Redis fejl
-redisClient.connect().catch((err) => console.error('Redis connect failed:', err)); // Forbind til Redis
 
 // View engine setup
 app.set('views', path.join(__dirname, 'disprojekt2025/views'));
 app.set('view engine', 'html');
 
+// Middleware
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
 // Static files
-//app.use(express.static(path.join(__dirname, 'disprojekt2025/public')));
-
-// Static file serving
 app.use(express.static(path.join(__dirname,'disprojekt2025', 'public')));
 
-// Session middleware (Redis-backed)
+// Session middleware
 app.use(session({
   store: new RedisStore({ client: redisClient, prefix: 'sess:' }),
   name: 'sid',
@@ -60,54 +60,45 @@ app.use(session({
   cookie: {
     httpOnly: true,
     sameSite: 'lax',
-    secure: 'auto',
+    secure: false, // false til lokal udvikling over HTTP. Sæt til true i produktion HTTPS
     maxAge: 30 * 60 * 1000 // 30 minutter
   }
 }));
 
-// cache cookies fjernes
+// No-cache headers for protected pages
 app.use((req, res, next) => {
-    res.setHeader('Cache-Control', 'no-store');
-    next();
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
+  next();
 });
 
-
-// Brug rate limiting på chat API
+// Rate limit på chat API
 app.use('/api/chat', chatLimiter);
 
-// 🔴 BESKYTTEDE ROUTES
+// 🔴 Protected routes
 app.get('/forside.html', (req, res) => {
-  if (!req.session.user) {
-    return res.redirect('/login.html');
-  }
-  res.sendFile(path.join(__dirname, 'disprojekt2025','protected', 'forside.html'));
+  if (!req.session.user) return res.redirect('/login.html');
+  res.sendFile(path.join(__dirname, 'disprojekt2025', 'protected', 'forside.html'));
 });
 
 app.get('/forside', (req, res) => {
-  if (!req.session.user) {
-    return res.redirect('/login.html');
-  }
-  res.sendFile(path.join(__dirname, 'disprojekt2025','protected', 'forside.html'));
+  if (!req.session.user) return res.redirect('/login.html');
+  res.sendFile(path.join(__dirname, 'disprojekt2025', 'protected', 'forside.html'));
 });
 
-// 🔴 ROUTE FOR RODEN (/)
+// 🔴 Root route
 app.get('/', (req, res) => {
-  if (req.session.user) {
-    return res.redirect('/forside');
-  }
+  if (req.session.user) return res.redirect('/forside');
   res.sendFile(path.join(__dirname, 'disprojekt2025', 'public', 'index.html'));
 });
 
-
-
-// Brug routers
+// Routers
 app.use('/auth', authRouter);
 app.use('/api', chatRouter);
 app.use('/users', usersRouter);
 
-
-
-// Simple session health check for debugging
+// Session health check
 app.get('/session-health', (req, res) => {
   req.session.views = (req.session.views || 0) + 1;
   res.json({
@@ -127,7 +118,6 @@ app.use(function(req, res, next) {
 // Error handler
 app.use(function(err, req, res, next) {
   console.error(err);
-  
   res.status(err.status || 500);
   res.send(`
     <!DOCTYPE html>
