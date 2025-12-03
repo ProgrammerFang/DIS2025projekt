@@ -60,7 +60,7 @@ app.use(session({
   cookie: {
     httpOnly: true,
     sameSite: 'none', // 'none' kræver secure: true og HTTPS
-    secure: true,     // Sæt til true i produktion med HTTPS
+    secure: false,     // Sæt til true i produktion med HTTPS
     maxAge: 30 * 60 * 1000 // 30 minutter
   }
 }));
