@@ -56,7 +56,7 @@ app.use(cors({
 // Session middleware (Redis-backed)
 app.use(session({
   store: new RedisStore({ client: redisClient, prefix: 'sess:' }),
-  name: 'sid',
+  name: 'connect.sid',
   secret: process.env.SESSION_SECRET || 'din-hemmelige-nøgle-her',
   resave: false,
   saveUninitialized: false,
@@ -64,7 +64,7 @@ app.use(session({
   cookie: {
     httpOnly: true,
     sameSite: 'none', // 'none' for HTTPS og cross-origin
-    secure: true,    // Sæt til true for HTTPS, false for HTTP/lokalt
+    secure: 'auto',    // Auto-detekter HTTPS bag proxy
     maxAge: 30 * 60 * 1000 // 30 minutter
   }
 }));
