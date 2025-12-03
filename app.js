@@ -91,10 +91,17 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'disprojekt2025', 'public', 'index.html'));
 });
 
+app.use((req, res, next) => {
+    res.setHeader('Cache-Control', 'no-store');
+    next();
+});
+
+
 // Brug routers
 app.use('/auth', authRouter);
 app.use('/api', chatRouter);
 app.use('/users', usersRouter);
+
 
 // Simple session health check for debugging
 app.get('/session-health', (req, res) => {
