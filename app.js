@@ -56,7 +56,7 @@ app.use(cors({
 // Session middleware (Redis-backed)
 app.use(session({
   store: new RedisStore({ client: redisClient, prefix: 'sess:' }),
-  name: 'sid',
+  name: 'connect.sid',
   secret: process.env.SESSION_SECRET || 'din-hemmelige-nøgle-her',
   resave: false,
   saveUninitialized: false,
