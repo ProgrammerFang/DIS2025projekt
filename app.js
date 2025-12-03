@@ -75,7 +75,6 @@ app.use(express.static(path.join(__dirname,'disprojekt2025', 'public')));
 // Brug rate limiting på chat API
 app.use('/api/chat', chatLimiter);
 
-// CORS middleware
 
 
 // 🔴 BESKYTTEDE ROUTES
