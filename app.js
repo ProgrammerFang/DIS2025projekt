@@ -66,12 +66,12 @@ app.use(session({
 }));
 
 // No-cache headers for protected pages
-app.use((req, res, next) => {
+/*app.use((req, res, next) => {
   res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
   res.setHeader('Pragma', 'no-cache');
   res.setHeader('Expires', '0');
   next();
-});
+});*/
 
 // Rate limit på chat API
 app.use('/api/chat', chatLimiter);
