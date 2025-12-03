@@ -25,11 +25,9 @@ const getUser = async (username) => {
 // Vis brugernavn på forsiden når siden loader
 const displayCurrentUser = async () => {
   const el = document.getElementById('brugernavnDisplay');
-  if (!el) {
-    console.error('Element med id "brugernavnDisplay" ikke fundet');
-    return; // Stop funktionen hvis elementet ikke findes
-  }
+  if (!el) console.error('Element med id "brugernavnDisplay" ikke fundet');
   try {
+    // Request current user from server (session-based)
     const response = await fetch('/auth/me');
     if (response.ok) {
       const data = await response.json();
