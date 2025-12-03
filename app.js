@@ -47,6 +47,7 @@ app.use(cookieParser());
 // Static files
 app.use(express.static(path.join(__dirname, 'disprojekt2025/public')));
 
+// CORS middleware (skal ligge før session)
 app.use(cors({
   origin: 'https://projektdiscbs2025.studio', // dit frontend-domæne
   credentials: true // tillad cookies/session
@@ -62,7 +63,7 @@ app.use(session({
   proxy: true,
   cookie: {
     httpOnly: true,
-    sameSite: 'none', // eller 'lax' for HTTPS
+    sameSite: 'none', // 'none' for HTTPS og cross-origin
     secure: true,    // Sæt til true for HTTPS, false for HTTP/lokalt
     maxAge: 30 * 60 * 1000 // 30 minutter
   }
