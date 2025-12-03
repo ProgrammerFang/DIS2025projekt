@@ -59,8 +59,8 @@ app.use(session({
   proxy: true,
   cookie: {
     httpOnly: true,
-    sameSite: 'lax',
-    secure: false, // false til lokal udvikling over HTTP. Sæt til true i produktion HTTPS
+    sameSite: 'none', // 'none' kræver secure: true og HTTPS
+    secure: true,     // Sæt til true i produktion med HTTPS
     maxAge: 30 * 60 * 1000 // 30 minutter
   }
 }));
