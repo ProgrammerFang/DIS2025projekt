@@ -44,7 +44,10 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
 // Static files
-app.use(express.static(path.join(__dirname, 'disprojekt2025/public')));
+//app.use(express.static(path.join(__dirname, 'disprojekt2025/public')));
+
+// Static file serving
+app.use(express.static(path.join(__dirname,'disprojekt2025', 'public')));
 
 // Session middleware (Redis-backed)
 app.use(session({
@@ -62,8 +65,12 @@ app.use(session({
   }
 }));
 
-// Static file serving
-app.use(express.static(path.join(__dirname,'disprojekt2025', 'public')));
+// cache cookies fjernes
+app.use((req, res, next) => {
+    res.setHeader('Cache-Control', 'no-store');
+    next();
+});
+
 
 // Brug rate limiting på chat API
 app.use('/api/chat', chatLimiter);
@@ -98,11 +105,7 @@ app.use('/auth', authRouter);
 app.use('/api', chatRouter);
 app.use('/users', usersRouter);
 
-// cache cookies fjernes
-app.use((req, res, next) => {
-    res.setHeader('Cache-Control', 'no-store');
-    next();
-});
+
 
 // Simple session health check for debugging
 app.get('/session-health', (req, res) => {
