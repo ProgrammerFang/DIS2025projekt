@@ -114,9 +114,8 @@ const setupLoginForm = () => {
       try {
         const response = await fetch('/auth/login', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
           body: JSON.stringify(loginData)
         });
         

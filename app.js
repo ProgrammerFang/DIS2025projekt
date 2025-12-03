@@ -47,6 +47,11 @@ app.use(cookieParser());
 // Static files
 app.use(express.static(path.join(__dirname, 'disprojekt2025/public')));
 
+app.use(cors({
+  origin: 'https://projektdiscbs2025.studio', // dit frontend-domæne
+  credentials: true // tillad cookies/session
+}));
+
 // Session middleware (Redis-backed)
 app.use(session({
   store: new RedisStore({ client: redisClient, prefix: 'sess:' }),
@@ -57,8 +62,8 @@ app.use(session({
   proxy: true,
   cookie: {
     httpOnly: true,
-    sameSite: 'lax',
-    secure: true,
+    sameSite: 'none', // eller 'lax' for HTTPS
+    secure: true,    // Sæt til true for HTTPS, false for HTTP/lokalt
     maxAge: 30 * 60 * 1000 // 30 minutter
   }
 }));
@@ -70,10 +75,7 @@ app.use(express.static(path.join(__dirname,'disprojekt2025', 'public')));
 app.use('/api/chat', chatLimiter);
 
 // CORS middleware
-app.use(cors({
-  origin: 'https://projektdiscbs2025.studio', // dit frontend-domæne
-  credentials: true // tillad cookies/session
-}));
+
 
 // 🔴 BESKYTTEDE ROUTES
 app.get('/forside.html', (req, res) => {
