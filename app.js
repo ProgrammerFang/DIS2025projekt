@@ -6,6 +6,7 @@ var logger = require('morgan');
 var rateLimit = require('express-rate-limit');
 var { RedisStore } = require('connect-redis');
 var { createClient } = require('redis');
+const cors = require('cors');
 
 // Mere rimelig rate limiting
 const chatLimiter = rateLimit({
@@ -67,6 +68,12 @@ app.use(express.static(path.join(__dirname,'disprojekt2025', 'public')));
 
 // Brug rate limiting på chat API
 app.use('/api/chat', chatLimiter);
+
+// CORS middleware
+app.use(cors({
+  origin: 'https://projektdiscbs2025.studio', // dit frontend-domæne
+  credentials: true // tillad cookies/session
+}));
 
 // 🔴 BESKYTTEDE ROUTES
 app.get('/forside.html', (req, res) => {
