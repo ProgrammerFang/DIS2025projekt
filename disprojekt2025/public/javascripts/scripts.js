@@ -28,7 +28,7 @@ const displayCurrentUser = async () => {
   if (!el) console.error('Element med id "brugernavnDisplay" ikke fundet');
   try {
     // Request current user from server (session-based)
-    const response = await fetch('/auth/me');
+    const response = await fetch('/auth/me', { credentials: 'include' });
     if (response.ok) {
       const data = await response.json();
       el.textContent = (data.user && data.user.username) || 'Bruger';
