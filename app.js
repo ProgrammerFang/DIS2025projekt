@@ -44,7 +44,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
 // Static files
-//app.use(express.static(path.join(__dirname, 'disprojekt2025/public')));
+app.use(express.static(path.join(__dirname, 'disprojekt2025/public')));
 
 // Static file serving
 app.use(express.static(path.join(__dirname,'disprojekt2025', 'public')));
