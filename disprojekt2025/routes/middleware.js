@@ -1,19 +1,13 @@
-var express = require('express');
-var router = express.Router();
-
-/* simpel middleware der tjekker om cookie eksisterer */
-const middleware = async (req, res, next) => {
-    if (req.cookies.myCookie == 'cookieValue') {
+// Middleware der tjekker både session og custom cookie
+const secureLoginMiddleware = (req, res, next) => {
+    if (
+        req.session && req.session.user &&
+        req.cookies && req.cookies.myCookie === 'cookieValue'
+    ) {
         next();
     } else {
-        res.json({ message: 'No middleware route access!' });
+        res.status(401).json({ message: 'Ikke logget ind eller mangler cookie!' });
     }
-}
+};
 
-/* middleware der tjekker om cookie eksisterer */
-/* husk GET /cookie/set for at sætte cookie først */
-router.get('/', middleware, async (req, res) => {
-    res.json({ message: 'Cookie found!', cookies: req.cookies.myCookie });
-});
-
-module.exports = router;
+module.exports = { secureLoginMiddleware };

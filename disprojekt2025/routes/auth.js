@@ -1,53 +1,25 @@
 const express = require('express');
 const router = express.Router();
 var users = require('../db/brugere');
+const { secureLoginMiddleware } = require('./middleware');
 
 // Login route
 router.post('/login', (req, res) => {
   const { brugernavn, adgangskode } = req.body;
-
-  console.log('Login forsøg:', { brugernavn }); // Debug log
-
   // Valider input
   if (!brugernavn || !adgangskode) {
-    return res.status(400).json({ 
-      success: false, 
-      message: 'Brugernavn og adgangskode er påkrævet' 
-    });
+    return res.status(400).json({ success: false, message: 'Brugernavn og adgangskode er påkrævet' });
   }
-
-  // Find brugeren i databasen
+  // Find brugeren i array
   const user = users.find(u => u.username === brugernavn);
-  
-  if (!user) {
-    console.log('Bruger ikke fundet:', brugernavn);
-    return res.status(401).json({ 
-      success: false, 
-      message: 'Forkert brugernavn eller adgangskode' 
-    });
+  if (!user || user.password !== adgangskode) {
+    return res.status(401).json({ success: false, message: 'Forkert brugernavn eller adgangskode' });
   }
-
-  // Tjek adgangskode
-  if (user.password !== adgangskode) {
-    console.log('Forkert adgangskode for bruger:', brugernavn);
-    return res.status(401).json({ 
-      success: false, 
-      message: 'Forkert brugernavn eller adgangskode' 
-    });
-  }
-
   // Login succesfuld
-  console.log('Login succesfuld for:', brugernavn);
-  req.session.user = {
-    username: user.username,
-    email: user.email
-  };
-
-  res.json({ 
-    success: true, 
-    message: 'Login succesfuld',
-    user: req.session.user 
-  });
+  req.session.user = { username: user.username, email: user.email };
+  // Sæt custom cookie
+  res.cookie('myCookie', 'cookieValue', { httpOnly: true, sameSite: 'lax' });
+  res.json({ success: true, message: 'Login succesfuld', user: req.session.user });
 });
 
 // Logout route
@@ -64,18 +36,9 @@ router.post('/logout', (req, res) => {
   });
 });
 
-// Return the currently logged-in user
-router.get('/me', (req, res) => {
-  if (req.session && req.session.user) {
-    return res.json({
-      success: true,
-      user: req.session.user
-    });
-  }
-  res.status(401).json({ 
-    success: false, 
-    message: 'Ikke logget ind' 
-  });
+// Return the currently logged-in user (beskyttet med middleware)
+router.get('/me', secureLoginMiddleware, (req, res) => {
+  res.json({ success: true, user: req.session.user });
 });
 
 // User info for frontend
